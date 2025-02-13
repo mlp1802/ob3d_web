@@ -1,9 +1,8 @@
 #[macro_use]
 extern crate rocket;
-use mongodb::{Client, options::ClientOptions};
-use rocket::fairing::AdHoc;
+extern crate core;
+use mongodb::{options::ClientOptions, Client};
 use std::env;
-
 async fn init_mongo() -> mongodb::Client {
     let mongo_uri = env::var("MONGO_URI").unwrap_or_else(|_| "mongodb://localhost:27017".into());
     let client_options = ClientOptions::parse(&mongo_uri).await.unwrap();
@@ -20,5 +19,5 @@ async fn rocket() -> _ {
 
 #[get("/")]
 fn hello_world() -> &'static str {
-    "Hello, world!"
+    "Hello, world3!"
 }

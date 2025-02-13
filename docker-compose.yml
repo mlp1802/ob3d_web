@@ -1,17 +1,18 @@
 version: '3.8'
 services:
   api:
-    ports:
-      - "8000:8000" 
     image: rust:latest
     volumes:
-      - .:/app
-    working_dir: /app
-    command: ["cargo", "run"]
+      - ../bevy_game:/game
+      - .:/ob3d_web
+    working_dir: /ob3d_web
+    command: ["/bin/sh", "-c", "apt update && apt install -y libudev-dev cmake g++ clang libasound2-dev mold && cargo install cargo-watch && cargo watch -x run"]
     depends_on:
       - mongo
     environment:
       MONGO_URI: "mongodb://mongo:27017"
+    ports:
+      - "8000:8000"
 
   mongo:
     image: mongo:latest
