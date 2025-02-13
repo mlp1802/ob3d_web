@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  api:
+    image: rust:latest
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["cargo", "run", "--release"]
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: "mongodb://mongo:27017"
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
+

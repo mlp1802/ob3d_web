@@ -1,0 +1,10 @@
+[package]
+name = "ob3d_web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mongodb = "2.0" 
+rocket = { version = "0.5", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+
