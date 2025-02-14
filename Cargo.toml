@@ -7,5 +7,5 @@ edition = "2021"
 mongodb = "2.0" 
 rocket = { version = "0.5", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
-core = { path = "../bevy_game/core" }
+core = { path = "../game/core" }
 

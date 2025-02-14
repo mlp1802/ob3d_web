@@ -19,5 +19,5 @@ async fn rocket() -> _ {
 
 #[get("/")]
 fn hello_world() -> &'static str {
-    "Hello, world3!"
+    "Hello, world7!"
 }

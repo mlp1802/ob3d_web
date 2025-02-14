@@ -1,12 +1,14 @@
 version: '3.8'
+
 services:
   api:
     image: rust:latest
     volumes:
-      - ../bevy_game:/game
-      - .:/ob3d_web
-    working_dir: /ob3d_web
-    command: ["/bin/sh", "-c", "apt update && apt install -y libudev-dev cmake g++ clang libasound2-dev mold && cargo install cargo-watch && cargo watch -x run"]
+      - ../game:/game  # Mount game workspace
+      - .:/web  # Mount web service
+      - cargo_target:/web/target  # Use a separate target dir inside the container
+    working_dir: /web
+    command: ["/bin/sh", "-c", "apt update && apt install -y libudev-dev cmake g++ clang libasound2-dev mold && rustup component add rustc-codegen-cranelift && cargo install cargo-watch && cargo watch -x check -x run"]
     depends_on:
       - mongo
     environment:
@@ -20,5 +22,6 @@ services:
       - mongo_data:/data/db
 
 volumes:
+  cargo_target:
   mongo_data:
 

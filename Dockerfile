@@ -1,22 +1,22 @@
-
-# Use the Rust official image as a base
 FROM rust:latest
 
-# Set the working directory
-WORKDIR /app
+# Install system dependencies needed for Rust, MongoDB, PhysX, and Bevy dependencies
+RUN apt update && apt install -y \
+    libudev-dev \
+    cmake \
+    g++ \
+    clang \
+    libasound2-dev \
+    mold
 
-# Copy the Cargo files and download dependencies
-COPY Cargo.toml Cargo.lock ./
-RUN cargo fetch
+# Install cargo-watch for hot reloading
+RUN cargo install cargo-watch
 
-# Copy the source code
+# Install Cranelift (optional, only if enabled in .cargo/config.toml)
+RUN rustup component add rustc-codegen-cranelift || true
+
+WORKDIR /web
 COPY . .
 
-# Build the application in release mode
-RUN cargo build --release
+CMD ["cargo", "watch", "-x", "check -x run"]
 
-# Expose the Rocket default port
-EXPOSE 8000
-
-# Run the application
-CMD ["./target/release/your_api_binary"]
