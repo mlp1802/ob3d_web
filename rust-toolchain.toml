@@ -1,0 +1,12 @@
+
+[toolchain]
+channel = "stable"  # Use the pinned stable version
+components = [
+    #"rustc-codegen-cranelift",
+    "clippy",
+    "rustfmt",
+    "rust-analyzer",
+    "llvm-tools-preview"  # Add LLVM tools
+]
+targets = ["x86_64-unknown-linux-gnu"]
+

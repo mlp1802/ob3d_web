@@ -1,15 +1,6 @@
-
-[unstable]
-codegen-backend = true
-
-[profile.dev]
-codegen-backend = "cranelift"
-
-[profile.dev.package."*"]
-codegen-backend = "llvm"
-
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"
+#rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
 
 [target.x86_64-apple-darwin]
@@ -28,3 +19,4 @@ rustflags = [
 
 [target.x86_64-pc-windows-msvc]
 linker = "rust-lld.exe"
+
