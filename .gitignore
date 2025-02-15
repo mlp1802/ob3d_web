@@ -1,2 +1,3 @@
 /target
 .periscope.nvim.json
+/lsp_target
