@@ -1,4 +1,5 @@
-use core::rest::rest::ParsecConfig;
+use core::parsec::parsec_config::ParsecControls;
+
 use mongodb::bson::doc;
 use mongodb::options::ReplaceOptions;
 use mongodb::results::{InsertOneResult, UpdateResult};
@@ -77,7 +78,7 @@ where
 }
 
 pub struct ParsecDao {
-    pub dao: Dao<ParsecConfig>,
+    pub dao: Dao<ParsecControls>,
 }
 
 impl ParsecDao {
@@ -87,10 +88,11 @@ impl ParsecDao {
         }
     }
 
-    pub async fn get_parsec_config(&self, user_id: &str) -> Option<ParsecConfig> {
+    pub async fn get_parsec_config(&self, user_id: &str) -> Option<ParsecControls> {
         self.dao.get_one_by_key("user_id", user_id).await
     }
-    pub async fn insert(&self, config: ParsecConfig) -> Option<InsertOneResult> {
+    pub async fn insert_parsec_config(&self, config: ParsecControls) -> Option<InsertOneResult> {
+        println!("INSETTING PARSEC CONFIG");
         self.dao.insert_one(config).await
     }
 }

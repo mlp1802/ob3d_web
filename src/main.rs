@@ -2,13 +2,16 @@ pub mod dao;
 
 extern crate core;
 extern crate rocket;
-use core::rest::rest::ParsecConfig;
+use core::parsec::parsec_config::ParsecControls;
+use core::pvp_settings::ParsecConfig;
 use dao::ParsecDao;
+use http::Status;
 use mongodb::results::InsertOneResult;
 use mongodb::{options::ClientOptions, Client};
 use rocket::serde::json::Json;
 use rocket::State;
 use rocket::*;
+use serde::Serialize;
 use std::env;
 async fn init_mongo() -> mongodb::Client {
     let mongo_uri = env::var("MONGO_URI").unwrap_or_else(|_| "mongodb://localhost:27017".into());
@@ -24,49 +27,40 @@ async fn rocket() -> _ {
     let parsec_dao = ParsecDao::new(db);
     rocket::build()
         .manage(parsec_dao)
-        .mount("/", routes![hello_world])
+        .mount("/", routes![create_parsec_config, get_parsec_config])
 }
 
-pub fn handle_insert_one(
-    obj: Option<InsertOneResult>,
-) -> Result<Json<InsertOneResult>, rocket::http::Status> {
-    match obj {
-        Some(obj) => Result::Ok(Json(obj)),
+pub fn handle_insert_one_empty_result(
+    result: Option<InsertOneResult>,
+) -> Result<(), rocket::http::Status> {
+    match result {
+        Some(_) => Ok(()),
         None => Result::Err(rocket::http::Status::InternalServerError),
     }
 }
-#[post("/parsec/update", format = "json", data = "<config>")]
+pub fn handle_get<T>(result: Option<T>) -> Result<Json<T>, rocket::http::Status>
+where
+    T: Serialize,
+{
+    match result {
+        Some(result) => Ok(Json(result)),
+        None => Result::Err(rocket::http::Status::InternalServerError),
+    }
+}
+
+#[post("/parsec/config", format = "json", data = "<config>")]
 async fn create_parsec_config(
     dao: &State<ParsecDao>,
-    config: Json<ParsecConfig>,
-) -> Result<Json<InsertOneResult>, rocket::http::Status> {
-    let result = dao.insert(config.into_inner()).await;
-    handle_insert_one(result)
+    config: Json<ParsecControls>,
+) -> Result<(), Status> {
+    let result = dao.insert_parsec_config(config.into_inner()).await;
+    handle_insert_one_empty_result(result)
 }
-
-#[get("/")]
-fn hello_world() -> &'static str {
-    "Hello, world7!"
+#[get("/parsec/config/<id>")]
+async fn get_parsec_config(
+    dao: &State<ParsecDao>,
+    id: &str,
+) -> Result<Json<ParsecControls>, Status> {
+    let result = dao.get_parsec_config(id).await;
+    handle_get(result)
 }
-
-// POST /parsec
-// Receives a JSON body matching `ParsecConfig`
-// Inserts into MongoDB, returns the inserted_id
-//#[post("/parsec", format = "json", data = "<config>")]
-//async fn example(
-//    mongo: &State<Client>,
-//    config: Json<ParsecConfig>,
-//) -> Result<Json<InsertOneResult>, rocket::http::Status> {
-//    // Choose your database and collection name:
-//    let db = mongo.database("my_database");
-//    let collection = db.collection::<ParsecConfig>("parsec_configs");
-//    let a: ParsecConfig = config.into_inner();
-//    // Insert into MongoDB
-//    let insert_result = collection.insert_one(a, None).await.map_err(|e| {
-//        eprintln!("Mongo insert error: {}", e);
-//        rocket::http::Status::InternalServerError
-//    })?;
-//
-//    // Return the `InsertOneResult` as JSON
-//    Ok(Json(insert_result))
-//}
