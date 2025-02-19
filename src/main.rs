@@ -2,7 +2,7 @@ pub mod dao;
 
 extern crate core;
 extern crate rocket;
-use core::parsec::parsec_config::ParsecControls;
+use core::parsec::parsec_controls::ParsecControls;
 use core::pvp_settings::ParsecConfig;
 use dao::ParsecDao;
 use http::Status;
@@ -27,7 +27,7 @@ async fn rocket() -> _ {
     let parsec_dao = ParsecDao::new(db);
     rocket::build()
         .manage(parsec_dao)
-        .mount("/", routes![create_parsec_config, get_parsec_config])
+        .mount("/", routes![create_parsec_config, get_parsec_controls])
 }
 
 pub fn handle_insert_one_empty_result(
@@ -57,10 +57,10 @@ async fn create_parsec_config(
     handle_insert_one_empty_result(result)
 }
 #[get("/parsec/config/<id>")]
-async fn get_parsec_config(
+async fn get_parsec_controls(
     dao: &State<ParsecDao>,
     id: &str,
 ) -> Result<Json<ParsecControls>, Status> {
-    let result = dao.get_parsec_config(id).await;
+    let result = dao.get_parsec_controls(id).await;
     handle_get(result)
 }

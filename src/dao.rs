@@ -1,4 +1,4 @@
-use core::parsec::parsec_config::ParsecControls;
+use core::parsec::parsec_controls::ParsecControls;
 
 use mongodb::bson::doc;
 use mongodb::options::ReplaceOptions;
@@ -38,7 +38,19 @@ where
     /// Example "get_one" by _key (expand as needed)
     pub async fn get_one_by_key(&self, key_name: &str, value: &str) -> Option<T> {
         let filter = doc! { key_name: value };
-        self.collection.find_one(filter, None).await.ok().flatten()
+        println!("Filter {:?}", filter);
+        let res: Result<Option<T>, mongodb::error::Error> =
+            self.collection.find_one(filter, None).await;
+        match res {
+            Ok(result) => {
+                println!("Got result ");
+                result
+            }
+            Err(e) => {
+                eprintln!("Failed get_one_by_key: {}", e);
+                None
+            }
+        }
     }
 
     pub async fn insert_or_update(
@@ -88,8 +100,10 @@ impl ParsecDao {
         }
     }
 
-    pub async fn get_parsec_config(&self, user_id: &str) -> Option<ParsecControls> {
-        self.dao.get_one_by_key("user_id", user_id).await
+    pub async fn get_parsec_controls(&self, id: &str) -> Option<ParsecControls> {
+        let controls = self.dao.get_one_by_key("parsec_id", id).await;
+        println!("GOT PARSEC CONTROLS {:?}", controls);
+        controls
     }
     pub async fn insert_parsec_config(&self, config: ParsecControls) -> Option<InsertOneResult> {
         println!("INSETTING PARSEC CONFIG");
