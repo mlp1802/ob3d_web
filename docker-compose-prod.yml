@@ -1,21 +1,56 @@
 version: '3.8'
+
 services:
   api:
     image: rust:latest
     volumes:
-      - .:/app
-    working_dir: /app
-    command: ["cargo", "run", "--release"]
+      - ../game:/game  # Mount game workspace
+      - .:/web  # Mount web service
+      - cargo_target:/web/target  # Use a separate target dir inside the container
+    working_dir: /web
+    command: ["/bin/sh", "-c", "apt update && apt install -y libudev-dev cmake g++ clang libasound2-dev mold && cargo run"]
     depends_on:
       - mongo
     environment:
       MONGO_URI: "mongodb://mongo:27017"
+    expose:
+      - "8000"  # Expose to internal network
 
   mongo:
     image: mongo:latest
     volumes:
       - mongo_data:/data/db
 
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data:/usr/share/nginx/html/data:ro  # Static files
+      - letsencrypt:/etc/letsencrypt  # SSL certificates
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+    networks:
+      - default
+      - certbot_network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'certbot certonly --webroot --webroot-path /usr/share/nginx/html --email your@email.com --agree-tos --no-eff-email --staging -d yourdomain.com && certbot renew --dry-run'"
+    depends_on:
+      - nginx
+    networks:
+      - certbot_network
+
 volumes:
+  cargo_target:
   mongo_data:
+  letsencrypt:
+
+networks:
+  certbot_network:
 
