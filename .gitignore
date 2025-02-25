@@ -1,3 +1,5 @@
 /target
 .periscope.nvim.json
 /lsp_target
+/data
+/letsencrypt
