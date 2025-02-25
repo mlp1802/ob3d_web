@@ -105,8 +105,10 @@ impl ParsecDao {
         println!("GOT PARSEC CONTROLS {:?}", controls);
         controls
     }
-    pub async fn insert_parsec_config(&self, config: ParsecControls) -> Option<InsertOneResult> {
+    pub async fn insert_parsec_config(&self, config: ParsecControls) -> Option<UpdateResult> {
         println!("INSETTING PARSEC CONFIG");
-        self.dao.insert_one(config).await
+        self.dao
+            .insert_or_update(config.clone(), "parsec_id", config.parsec_id.as_str())
+            .await
     }
 }

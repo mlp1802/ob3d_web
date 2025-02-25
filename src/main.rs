@@ -6,7 +6,7 @@ use core::parsec::parsec_controls::ParsecControls;
 use core::pvp_settings::ParsecConfig;
 use dao::ParsecDao;
 use http::Status;
-use mongodb::results::InsertOneResult;
+use mongodb::results::{InsertOneResult, UpdateResult};
 use mongodb::{options::ClientOptions, Client};
 use rocket::serde::json::Json;
 use rocket::State;
@@ -31,7 +31,7 @@ async fn rocket() -> _ {
 }
 
 pub fn handle_insert_one_empty_result(
-    result: Option<InsertOneResult>,
+    result: Option<UpdateResult>,
 ) -> Result<(), rocket::http::Status> {
     match result {
         Some(_) => Ok(()),
@@ -53,6 +53,7 @@ async fn create_parsec_config(
     dao: &State<ParsecDao>,
     config: Json<ParsecControls>,
 ) -> Result<(), Status> {
+    println!("Create Parsec Config {}", config.parsec_id);
     let result = dao.insert_parsec_config(config.into_inner()).await;
     handle_insert_one_empty_result(result)
 }

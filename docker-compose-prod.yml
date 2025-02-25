@@ -24,7 +24,7 @@ services:
   mongo:
     image: mongo:latest
     volumes:
-      - mongo_data:/data/db
+      - ./mongo_data:/data/db
 
   traefik:
     image: traefik:v2.10
