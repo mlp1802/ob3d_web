@@ -1,0 +1,48 @@
+# traefik.yml - Main Traefik Configuration
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+  file:
+    filename: "/etc/traefik/traefik.yml"
+    watch: true
+  docker:
+    exposedByDefault: false
+
+http:
+  routers:
+    api:
+      rule: "PathPrefix(`/api`)"
+      service: "api"
+      entryPoints: ["web"]
+      middlewares: ["api-strip-prefix"]
+
+    static:
+      rule: "PathPrefix(`/data`)"
+      service: "static"
+      entryPoints: ["web"]
+      middlewares: ["static-strip-prefix"]
+
+  middlewares:
+    api-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/api"
+
+    static-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/data"
+
+  services:
+    api:
+      loadBalancer:
+        servers:
+          - url: "http://api:8000"
+
+    static:
+      loadBalancer:
+        servers:
+          - url: "http://static:80"
+
