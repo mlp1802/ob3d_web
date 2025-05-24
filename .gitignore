@@ -1,6 +1,7 @@
 /target
 .periscope.nvim.json
 /lsp_target
+.target_lsp/
 /data
 /letsencrypt
 /mongo_data
