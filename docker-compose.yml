@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   api:
-    image: rust:latest
+    build: .
     volumes:
       - ../game:/game  # Mount game workspace
       - .:/web  # Mount web service
       - cargo_target:/web/target  # Use a separate target dir inside the container
     working_dir: /web
-    command: ["/bin/sh", "-c", "apt update && apt install -y libudev-dev cmake g++ clang libasound2-dev mold  && cargo run"]
+    command: cargo run
     depends_on:
       - mongo
     environment:

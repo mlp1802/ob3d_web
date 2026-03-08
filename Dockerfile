@@ -1,22 +1,27 @@
 FROM rust:latest
 
-# Install system dependencies needed for Rust, MongoDB, PhysX, and Bevy dependencies
-RUN apt update && apt install -y \
-    libudev-dev \
+RUN apt-get update && apt-get install -y \
+    build-essential \
     cmake \
-    g++ \
     clang \
+    mold \
+    wget \
+    libudev-dev \
     libasound2-dev \
-    mold
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libglfw3 \
+    libx11-dev \
+    libxrandr-dev \
+    libxi-dev \
+    libxinerama-dev \
+    libxcursor-dev
 
-# Install cargo-watch for hot reloading
-RUN cargo install cargo-watch
+RUN wget https://github.com/google-deepmind/mujoco/releases/download/3.3.7/mujoco-3.3.7-linux-x86_64.tar.gz \
+ && tar -xzf mujoco-3.3.7-linux-x86_64.tar.gz \
+ && mv mujoco-3.3.7 /usr/local/mujoco
 
-# Install Cranelift (optional, only if enabled in .cargo/config.toml)
-RUN rustup component add rustc-codegen-cranelift || true
+ENV MUJOCO_DYNAMIC_LINK_DIR=/usr/local/mujoco/lib
+ENV LD_LIBRARY_PATH=/usr/local/mujoco/lib
 
 WORKDIR /web
-COPY . .
-
-CMD ["cargo", "watch", "-x", "check -x run"]
-
