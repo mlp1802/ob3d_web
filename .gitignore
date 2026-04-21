@@ -3,5 +3,6 @@
 /lsp_target
 .target_lsp/
 /data
+/files
 /letsencrypt
 /mongo_data

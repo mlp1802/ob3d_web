@@ -6,6 +6,7 @@ services:
     volumes:
       - ../game:/game  # Mount game workspace
       - .:/web  # Mount web service
+      - ./files:/files 
       - cargo_target:/web/target  # Use a separate target dir inside the container
     working_dir: /web
     command: cargo run
@@ -14,11 +15,11 @@ services:
     environment:
       MONGO_URI: "mongodb://mongo:27017"
 
-  static:
-    image: nginx:latest
-    volumes:
-      - ./data:/usr/share/nginx/html:ro  # Serve static files
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro  # Custom Nginx config
+#  static:
+#    image: nginx:latest
+#    volumes:
+#      - ./data:/usr/share/nginx/html:ro  # Serve static files
+#      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro  # Custom Nginx config
 
   mongo:
     image: mongo:latest

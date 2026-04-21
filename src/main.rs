@@ -1,5 +1,6 @@
 pub mod custom_styles_dao;
 pub mod dao;
+pub mod file_sync;
 pub mod parsec_dao;
 
 extern crate core;
@@ -8,16 +9,21 @@ use core::custom_styles::custom_style::CustomStyle;
 use core::custom_styles::serial_custom_style::SerialCustomStyle;
 use core::parsec::parsec_controls::ParsecControls;
 use core::pvp_settings::ParsecConfig;
+use core::rest::syncher::SynchRequest;
 use custom_styles_dao::CustomStylesDao;
 use http::Status;
 use mongodb::results::{InsertOneResult, UpdateResult};
 use mongodb::{options::ClientOptions, Client};
 use parsec_dao::ParsecDao;
+use rocket::fs::NamedFile;
 use rocket::serde::json::Json;
 use rocket::State;
 use rocket::*;
 use serde::Serialize;
 use std::env;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 async fn init_mongo() -> mongodb::Client {
     let mongo_uri = env::var("MONGO_URI").unwrap_or_else(|_| "mongodb://localhost:27017".into());
     let client_options = ClientOptions::parse(&mongo_uri).await.unwrap();
@@ -40,7 +46,9 @@ async fn rocket() -> _ {
                 create_parsec_config,
                 get_parsec_controls,
                 create_custom_style,
-                get_custom_style
+                get_custom_style,
+                file_sync::sync_check,
+                file_sync::download
             ],
         )
 }

@@ -6,9 +6,10 @@ services:
     volumes:
       - ../game:/game  # Mount game workspace
       - .:/web  # Mount web service
+      - ./files:/files 
       - cargo_target:/web/target  # Use a separate target dir inside the container
     working_dir: /web
-    command: cargo run
+    command: cargo watch -x run
     depends_on:
       - mongo
     environment:

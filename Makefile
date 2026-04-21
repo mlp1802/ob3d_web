@@ -7,3 +7,8 @@ run-prod:
 
 check:
 	bash ./check.sh
+build-image-no-cache:
+	docker compose build --no-cache
+build-image:
+	docker compose build --no-cache
+
